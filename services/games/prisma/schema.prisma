@@ -1,0 +1,33 @@
+// services/games/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Round {
+  id          String   @id @default(uuid())
+  status      String   // BETTING | RUNNING | CRASHED
+  crashPoint  Int      // em centésimos (ex: 250 = 2.50x)
+  seedHash    String   // hash público revelado antes da rodada
+  seed        String?  // seed revelada após o crash
+  createdAt   DateTime @default(now())
+  startedAt   DateTime?
+  crashedAt   DateTime?
+  bets        Bet[]
+}
+
+model Bet {
+  id           String   @id @default(uuid())
+  roundId      String
+  playerId     String
+  amount       BigInt   // em centavos
+  cashoutAt    Int?     // multiplicador no momento do saque (centésimos)
+  payout       BigInt?  // em centavos
+  status       String   // PENDING | WON | LOST
+  createdAt    DateTime @default(now())
+  round        Round    @relation(fields: [roundId], references: [id])
+}
