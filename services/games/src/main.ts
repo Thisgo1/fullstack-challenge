@@ -28,6 +28,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('games'); // todas as rotas ficam em /games/...
 
-  await app.listen(4001);
+  await app.listen(3001);
 }
 bootstrap();

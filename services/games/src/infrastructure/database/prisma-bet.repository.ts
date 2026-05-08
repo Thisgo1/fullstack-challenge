@@ -1,12 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { IBetRepository } from "../../domain/bet/bet.repository";
 import { Bet } from "../../domain/bet/bet.entity";
 import { BetStatus } from "../../domain/bet/bet-status.enum";
 
 @Injectable()
 export class PrismaBetRepository implements IBetRepository {
-  private readonly prisma = new PrismaClient();
+  private readonly prisma: PrismaClient;
+
+  constructor() {
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL
+    });
+    this.prisma = new PrismaClient({ adapter });
+  }
 
   async findById(id: string): Promise<Bet | null> {
     const record = await this.prisma.bet.findUnique({
