@@ -28,6 +28,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('wallets'); // todas as rotas ficam em /wallets/...
 
-  await app.listen(3002);
+  await app.listen(4002);
 }
 bootstrap();
