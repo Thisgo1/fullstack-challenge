@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { IRoundRepository } from "../../domain/round/round.repository";
 import { Round } from "../../domain/round/round.entity";
 import { RoundStatus } from "../../domain/round/round-status.enum";
@@ -8,7 +9,14 @@ import { BetStatus } from "@/domain/bet/bet-status.enum";
 
 @Injectable()
 export class PrismaRoundRepository implements IRoundRepository {
-  private readonly prisma = new PrismaClient();
+  private readonly prisma: PrismaClient;
+
+  constructor() {
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL
+    });
+    this.prisma = new PrismaClient({ adapter });
+  }
 
   async findById(id: string): Promise<Round | null> {
     const record = await this.prisma.round.findUnique({
