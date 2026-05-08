@@ -1,3 +1,5 @@
+import { config } from 'dotenv';
+config();
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -28,6 +30,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('wallets'); // todas as rotas ficam em /wallets/...
 
-  await app.listen(4002);
+  await app.listen(3002);
 }
 bootstrap();

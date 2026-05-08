@@ -1,11 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { IWalletRepository } from '../../domain/wallet/wallet.repository';
+import { PrismaPg } from '@prisma/adapter-pg';
+import type { IWalletRepository } from '../../domain/wallet/wallet.repository';
 import { Wallet } from '../../domain/wallet/wallet.entity';
 
 @Injectable()
 export class PrismaWalletRepository implements IWalletRepository {
-  private readonly prisma = new PrismaClient();
+  private readonly prisma: PrismaClient;
+
+  constructor() {
+    const adapter = new PrismaPg({
+      connectionString: process.env.DATABASE_URL
+    });
+    this.prisma = new PrismaClient({ adapter });
+  }
 
   async findByPlayerId(playerId: string): Promise<Wallet | null> {
     const record = await this.prisma.wallet.findUnique({ where: { playerId } })
