@@ -19,7 +19,7 @@ export class CreateRoundUseCase {
   async execute(): Promise<Round> {
     const seed = ProvablyFair.generateSeed();
     const seedHash = ProvablyFair.hashSeed(seed);
-    const crashPoint = ProvablyFair.generateCrashPoint(seed, this.serverSecret);
+    const crashPoint = ProvablyFair.calculateCrashPoint(seed, this.serverSecret);
 
     const round = Round.create(randomUUID(), crashPoint, seedHash, seed);
     await this.roundRepository.save(round);
