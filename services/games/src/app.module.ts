@@ -10,6 +10,7 @@ import { CashoutUseCase }   from './application/bet/cashout.use-case';
 import { PrismaRoundRepository } from './infrastructure/database/prisma-round.repository';
 import { PrismaBetRepository }   from './infrastructure/database/prisma-bet.repository';
 import { RabbitMQEventPublisher } from './infrastructure/messaging/rabbitmq-event-publisher';
+import { GameLoopService } from './application/round/game-loop.service';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RabbitMQEventPublisher } from './infrastructure/messaging/rabbitmq-even
     CreateRoundUseCase,
     PlaceBetUseCase,
     CashoutUseCase,
+    GameLoopService,
   ],
 })
 export class AppModule {}
