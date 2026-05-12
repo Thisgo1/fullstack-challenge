@@ -21,13 +21,14 @@ model Round {
 }
 
 model Bet {
-  id           String   @id @default(uuid())
-  roundId      String
-  playerId     String
-  amount       BigInt   // em centavos
-  cashoutAt    Int?     // multiplicador no momento do saque (centésimos)
-  payout       BigInt?  // em centavos
-  status       String   // PENDING | WON | LOST
-  createdAt    DateTime @default(now())
-  round        Round    @relation(fields: [roundId], references: [id])
+  id              String   @id
+  roundId         String
+  playerId        String
+  amount          BigInt
+  status          String   @default("PENDING")
+  cashoutMultiplier Int?
+  payout          BigInt?
+  autoCashoutAt   Int?     // ← adicionar — null = manual
+  createdAt       DateTime @default(now())
+  round           Round    @relation(fields: [roundId], references: [id])
 }
