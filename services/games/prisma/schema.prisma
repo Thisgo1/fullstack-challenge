@@ -1,0 +1,33 @@
+generator client {
+  provider        = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model Round {
+  id          String   @id @default(uuid())
+  status      String
+  crashPoint  Int
+  seedHash    String
+  seed        String?
+  createdAt   DateTime @default(now())
+  startedAt   DateTime?
+  crashedAt   DateTime?
+  bets        Bet[]
+}
+
+model Bet {
+  id              String   @id
+  roundId         String
+  playerId        String
+  amount          BigInt
+  status          String   @default("PENDING")
+  cashoutMultiplier Int?
+  payout          BigInt?
+  autoCashoutAt   Int?
+  createdAt       DateTime @default(now())
+  round           Round    @relation(fields: [roundId], references: [id])
+}
