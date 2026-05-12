@@ -53,6 +53,8 @@ export class CashoutUseCase {
       playerId: bet.playerId,
       payout: bet.payout!.toString(),
       roundId: round.id,
+      amount:            bet.amount.toString(),        
+      cashoutMultiplier: bet.cashoutMultiplier!,
     };
     await this.eventPublisher.publish(BET_EVENTS.WON, event);
 
