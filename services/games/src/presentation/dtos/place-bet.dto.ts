@@ -1,8 +1,13 @@
-import {IsInt, Min, Max} from 'class-validator';
+import {IsInt, Min, Max, IsOptional} from 'class-validator';
 
 export class PlaceBetDto {
   @IsInt()
-  @Min(100)    // R$ 1,00 em centavos
-  @Max(100000) // R$ 1.000,00 em centavos
+  @Min(100)
+  @Max(100000)
   amount: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(101) // mínimo 1.01x
+  autoCashoutAt?: number;
 }
