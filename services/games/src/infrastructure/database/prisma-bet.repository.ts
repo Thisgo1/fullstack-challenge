@@ -47,25 +47,26 @@ export class PrismaBetRepository implements IBetRepository {
   }
 
   async save(bet: Bet): Promise<void> {
-    await this.prisma.bet.upsert({
-      where: { id: bet.id },
-      create: {
-        id: bet.id,
-        roundId: bet.roundId,
-        playerId: bet.playerId,
-        amount: bet.amount,
-        status: bet.status,
-        crashoutAt: bet.crashoutMultiplier,
-        payout: bet.payout,
-        createdAt: bet.createdAt,
-      },
-      update: {
-        status: bet.status,
-        crashoutAt: bet.crashoutMultiplier,
-        payout: bet.payout,
-      }
-    });
-  }
+  await this.prisma.bet.upsert({
+    where: { id: bet.id },
+    create: {
+      id: bet.id,
+      roundId: bet.roundId,
+      playerId: bet.playerId,
+      amount: bet.amount,
+      status: bet.status,
+      cashoutMultiplier: bet.cashoutMultiplier,  // ← era cashoutAt
+      payout: bet.payout,
+      createdAt: bet.createdAt,
+      autoCashoutAt: bet.autoCashoutAt,
+    },
+    update: {
+      status: bet.status,
+      cashoutMultiplier: bet.cashoutMultiplier,  // ← era cashoutAt
+      payout: bet.payout,
+    }
+  });
+}
 
   async saveMany(bets: Bet[]): Promise<void> {
     await this.prisma.$transaction(
@@ -80,16 +81,17 @@ export class PrismaBetRepository implements IBetRepository {
     );
   }
 
-  private toEntity(record: any): Ber{
-    return Bet.restore(
-      record.id,
-      record.roundId,
-      record.playerId,
-      record.amount,
-      record.status as BetStatus,
-      record.crashoutAt,
-      record.payout,
-      record.createdAt
-    );
-  }
+ private toEntity(record: any): Bet {
+  return Bet.restore(
+    record.id,
+    record.roundId,
+    record.playerId,
+    record.amount,
+    record.status as BetStatus,
+    record.cashoutMultiplier,  // ← era cashoutAt
+    record.payout,
+    record.createdAt,
+    record.autoCashoutAt,
+  );
+}
 }

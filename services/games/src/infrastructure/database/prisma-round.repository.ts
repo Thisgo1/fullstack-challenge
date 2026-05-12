@@ -83,11 +83,7 @@ export class PrismaRoundRepository implements IRoundRepository {
 
   private toEntity(record: any): Round {
     const bets = record.bets.map((b: any) =>
-      Bet.restore(
-        b.id, b.roundId, b.playerId, b.amount,
-        b.status as BetStatus,
-        b.crashoutAt, b.payout,
-        b.createdAt)
+Bet.restore(b.id, b.roundId, b.playerId, b.amount, b.status, b.cashoutMultiplier, b.payout, b.createdAt, b.autoCashoutAt)
       );
 
     return Round.restore(

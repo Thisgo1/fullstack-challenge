@@ -1,9 +1,7 @@
 import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import type { IRoundRepository } from '../../domain/round/round.repository';
-import { ROUND_REPOSITORY } from '../../domain/round/round.repository';
-import type { IBetRepository} from '../../domain/bet/bet.repository';
-import {BET_REPOSITORY } from '../../domain/bet/bet.repository';
+import { IRoundRepository, ROUND_REPOSITORY } from '../../domain/round/round.repository';
+import { IBetRepository, BET_REPOSITORY } from '../../domain/bet/bet.repository';
 import type { IEventPublisher } from '../../domain/events/event-publisher';
 import { EVENT_PUBLISHER } from '../../domain/events/event-publisher';
 import { BET_EVENTS } from '../../domain/events/bet-events';

@@ -14,6 +14,7 @@ export class Bet {
     private _cashoutMultiplier: number | null, // ex: 250 = 2.50x
     private _payout: bigint | null,
     public readonly createdAt: Date,
+    public readonly autoCashoutAt: number | null, // ← adicionar
   ) {}
 
   /**
@@ -25,11 +26,14 @@ export class Bet {
    * @returns Nova instância de Bet
    * @throws Error se o valor estiver fora dos limites
    */
-  static create(id: string, roundId: string, playerId: string, amount: bigint): Bet {
-    if (amount < 100n) throw new Error('Aposta mínima é R$ 1,00');
-    if (amount > 100_000n) throw new Error('Aposta máxima é R$ 1.000,00');
-    return new Bet(id, roundId, playerId, amount, BetStatus.PENDING, null, null, new Date());
+  static create(id: string, roundId: string, playerId: string, amount: bigint, autoCashoutAt?: number): Bet {
+  if (amount < 100n) throw new Error('Aposta mínima é R$ 1,00');
+  if (amount > 100_000n) throw new Error('Aposta máxima é R$ 1.000,00');
+  if (autoCashoutAt !== undefined && autoCashoutAt < 101) {
+    throw new Error('Auto cashout mínimo é 1.01x');
   }
+  return new Bet(id, roundId, playerId, amount, BetStatus.PENDING, null, null, new Date(), autoCashoutAt ?? null);
+}
 
   /**
    * Restaura uma aposta existente do banco de dados.
@@ -43,13 +47,13 @@ export class Bet {
    * @param createdAt Data de criação
    * @returns Instância restaurada de Bet
    */
-  static restore(
-    id: string, roundId: string, playerId: string, amount: bigint,
-    status: BetStatus, cashoutMultiplier: number | null, payout: bigint | null,
-    createdAt: Date,
-  ): Bet {
-    return new Bet(id, roundId, playerId, amount, status, cashoutMultiplier, payout, createdAt);
-  }
+static restore(
+  id: string, roundId: string, playerId: string, amount: bigint,
+  status: BetStatus, cashoutMultiplier: number | null, payout: bigint | null,
+  createdAt: Date, autoCashoutAt: number | null, // ← adicionar
+): Bet {
+  return new Bet(id, roundId, playerId, amount, status, cashoutMultiplier, payout, createdAt, autoCashoutAt);
+}
 
   get status(): BetStatus { return this._status; }
   get cashoutMultiplier(): number | null { return this._cashoutMultiplier; }
