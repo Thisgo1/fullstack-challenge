@@ -1,4 +1,5 @@
-import { Injectable, Inject,OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/common";
+import { Injectable, Inject,OnModuleInit, Logger } from "@nestjs/common";
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EVENT_PUBLISHER } from "@/domain/events/event-publisher";
 import type { IEventPublisher } from "@/domain/events/event-publisher";
 import { ROUND_REPOSITORY } from "@/domain/round/round.repository";
@@ -8,6 +9,7 @@ import type { IBetRepository } from "@/domain/bet/bet.repository";
 import { BET_EVENTS } from "@/domain/events/bet-events";
 import type { BetLostEvent } from "@/domain/events/bet-events";
 import { CreateRoundUseCase } from "./create-round.use-case";
+import { CashoutUseCase } from "../bet/cashout.use-case";
 
 const BETTING_PHASE_MS = 10_000; //10 segundos para apostar
 const CRASH_INTERVAL_MS = 100; // tick a cada 100ms
@@ -29,6 +31,8 @@ export class GameLoopService implements OnModuleInit {
     private readonly betRepository: IBetRepository,
     @Inject(EVENT_PUBLISHER)
     private readonly eventPublisher: IEventPublisher,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly cashoutUseCase: CashoutUseCase,
   ){}
 
   async onModuleInit(): Promise<void> {
@@ -47,68 +51,106 @@ export class GameLoopService implements OnModuleInit {
     }
   }
 
-  private async runRound(): Promise<void> {
-    // ── Fase 1: BETTING ───────────────────────────────────────────────
-    const round = await this.createRound.execute();
-    this.currentRoundId = round.id;
-    this.currentMultiplier = 100;
+private async runRound(): Promise<void> {
+  // ── Fase 1: BETTING ───────────────────────────────────────────────
+  const round = await this.createRound.execute();
+  this.currentRoundId = round.id;
+  this.currentMultiplier = 100;
 
-    this.logger.log(`Round ${round.id} started - BETTING phase (${BETTING_PHASE_MS}ms)`)
+  this.eventEmitter.emit('round.betting', {
+    roundId: round.id,
+    seedHash: round.seedHash,
+    duration: BETTING_PHASE_MS
+  });
 
-    await this.sleep(BETTING_PHASE_MS)
+  this.logger.log(`Round ${round.id} started - BETTING phase (${BETTING_PHASE_MS}ms)`);
+  await this.sleep(BETTING_PHASE_MS);
 
-    // ── Fase 2: RUNNING ───────────────────────────────────────────────
+  // ── Fase 2: RUNNING ───────────────────────────────────────────────
 
-    round.start()
-    await this.roundRepository.save(round);
-    this.logger.log(`Round ${round.id} - RUNNING`)
+  round.start();
+  await this.roundRepository.save(round);
 
-    const crashTimeMs = this.multiplierToMs(round.crashPoint);
+  // ✅ ADICIONADO: recarrega do banco para pegar as bets feitas durante o BETTING
+  const runningRound = await this.roundRepository.findById(round.id);
+  if (!runningRound) throw new Error(`Round ${round.id} não encontrado após BETTING`);
 
-    await new Promise<void> ((resolve) => {
-      const startTime = Date.now();
+  this.eventEmitter.emit('round.started', { roundId: runningRound.id });
+  this.logger.log(`Round ${runningRound.id} - RUNNING`);
 
-      const interval = setInterval(async () => {
-        const elapsed = Date.now() - startTime;
+  const crashTimeMs = this.multiplierToMs(runningRound.crashPoint);
 
-        this.currentMultiplier = Math.floor(
-          100 * Math.pow(Math.E, elapsed / 6000)
-        );
+  await new Promise<void>((resolve) => {
+    const startTime = Date.now();
 
-        if (elapsed >= crashTimeMs) {
-          clearInterval(interval);
-          this.currentMultiplier = round.crashPoint;
-          resolve();
-        }
-      }, CRASH_INTERVAL_MS);
-    });
+    const interval = setInterval(async () => {
+      const elapsed = Date.now() - startTime;
 
-    // ── Fase 3: CRASHED ───────────────────────────────────────────────
-
-    const lostBets = round.crash();
-    await this.roundRepository.save(round);
-
-    this.logger.log(
-      `Round ${round.id} CRASHED at ${round.crashPoint / 100}x - ${lostBets.length} bets lost`
-    )
-
-    if (lostBets.length > 0){
-      await this.betRepository.saveMany(lostBets);
-
-      await Promise.all(
-        lostBets.map(bet => {
-          const event: BetLostEvent = {
-            betId: bet.id,
-            playerId: bet.playerId,
-            roundId: round.id,
-          };
-          return this.eventPublisher.publish(BET_EVENTS.LOST, event)
-        })
+      this.currentMultiplier = Math.round(
+        100 * Math.pow(Math.E, elapsed / 6000)
       );
-    }
-    this.currentRoundId = null;
-    await this.sleep(BETWEEN_ROUNDS_MS)
+
+      // ✅ ALTERADO: usa runningRound em vez de round
+      const pendingBets = runningRound.bets.filter(
+        bet => bet.isPending &&
+               bet.autoCashoutAt !== null &&
+               this.currentMultiplier >= bet.autoCashoutAt!
+      );
+
+      for (const bet of pendingBets) {
+        try {
+          await this.cashoutUseCase.execute({
+            playerId: bet.playerId,
+            currentMultiplier: bet.autoCashoutAt!,
+          });
+          this.logger.log(`Auto cashout: player ${bet.playerId} at ${bet.autoCashoutAt! / 100}x`);
+        } catch (err: any) {
+          this.logger.warn(`Auto cashout failed for ${bet.playerId}: ${err.message}`);
+        }
+      }
+
+      if (elapsed >= crashTimeMs) {
+        clearInterval(interval);
+        this.currentMultiplier = runningRound.crashPoint;
+        resolve();
+      }
+    }, CRASH_INTERVAL_MS);
+  });
+
+  // ── Fase 3: CRASHED ───────────────────────────────────────────────
+
+  // ✅ ALTERADO: usa runningRound (já tem as bets) em vez de round
+  const lostBets = runningRound.crash();
+  await this.roundRepository.save(runningRound);
+
+  this.logger.log(
+    `Round ${runningRound.id} CRASHED at ${runningRound.crashPoint / 100}x - ${lostBets.length} bets lost`
+  );
+
+  this.eventEmitter.emit('round.crashed', {
+    roundId: runningRound.id,
+    crashPoint: runningRound.crashPoint,
+    display: (runningRound.crashPoint / 100).toFixed(2),
+  });
+
+  if (lostBets.length > 0) {
+    await this.betRepository.saveMany(lostBets);
+
+    await Promise.all(
+      lostBets.map(bet => {
+        const event: BetLostEvent = {
+          betId: bet.id,
+          playerId: bet.playerId,
+          roundId: runningRound.id,
+        };
+        return this.eventPublisher.publish(BET_EVENTS.LOST, event);
+      })
+    );
   }
+
+  this.currentRoundId = null;
+  await this.sleep(BETWEEN_ROUNDS_MS);
+}
 
   private multiplierToMs(multiplier: number): number {
     return Math.floor(6000 * Math.log(multiplier / 100));
