@@ -1,4 +1,3 @@
-// services/games/prisma/schema.prisma
 generator client {
   provider        = "prisma-client-js"
 }
@@ -10,10 +9,10 @@ datasource db {
 
 model Round {
   id          String   @id @default(uuid())
-  status      String   // BETTING | RUNNING | CRASHED
-  crashPoint  Int      // em centésimos (ex: 250 = 2.50x)
-  seedHash    String   // hash público revelado antes da rodada
-  seed        String?  // seed revelada após o crash
+  status      String
+  crashPoint  Int
+  seedHash    String
+  seed        String?
   createdAt   DateTime @default(now())
   startedAt   DateTime?
   crashedAt   DateTime?
@@ -28,7 +27,7 @@ model Bet {
   status          String   @default("PENDING")
   cashoutMultiplier Int?
   payout          BigInt?
-  autoCashoutAt   Int?     // ← adicionar — null = manual
+  autoCashoutAt   Int?
   createdAt       DateTime @default(now())
   round           Round    @relation(fields: [roundId], references: [id])
 }

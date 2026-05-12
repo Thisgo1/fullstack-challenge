@@ -8,6 +8,6 @@ export class PlaceBetDto {
 
   @IsOptional()
   @IsInt()
-  @Min(101) // mínimo 1.01x
+  @Min(101) 
   autoCashoutAt?: number;
 }

@@ -12,7 +12,6 @@ export function useGameEvents() {
   const prevStatus = useRef<string | null>(null);
 
   useEffect(() => {
-    // Só dispara quando acabou de crashar (transição → CRASHED)
     if (roundStatus !== 'CRASHED' || prevStatus.current === 'CRASHED') {
       prevStatus.current = roundStatus;
       return;
@@ -22,7 +21,6 @@ export function useGameEvents() {
     if (!hasBet || lastResult === null) return;
 
     if (lastResult >= 0) {
-      // ganhou — já tem toast no cashout, não duplica
     } else {
       const lost = Math.abs(lastResult);
       toast.error(`Você perdeu R$ ${(lost / 100).toFixed(2)} @ ${(crashPoint! / 100).toFixed(2)}x`, {

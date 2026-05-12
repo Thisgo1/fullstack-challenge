@@ -6,7 +6,7 @@ import { api } from '@/lib/api';
 export function AutoControls() {
   const [autoBetEnabled,    setAutoBetEnabled]    = useState(false);
   const [autoCashoutEnabled, setAutoCashoutEnabled] = useState(false);
-  const [autoCashoutAt,     setAutoCashoutAt]     = useState('200'); // 2.00x em centésimos
+  const [autoCashoutAt,     setAutoCashoutAt]     = useState('200');
 
   const roundStatus = useGameStore(s => s.roundStatus);
   const hasBet      = useGameStore(s => s.hasBet);
@@ -15,14 +15,12 @@ export function AutoControls() {
 
   const didBetThisRound = useRef(false);
 
-  // Reseta o controle a cada nova rodada
   useEffect(() => {
     if (roundStatus === 'BETTING') {
       didBetThisRound.current = false;
     }
   }, [roundStatus]);
 
-  // Auto-bet: aposta assim que a fase BETTING começa
   useEffect(() => {
     if (
       !autoBetEnabled          ||
@@ -43,7 +41,7 @@ export function AutoControls() {
       })
       .catch((err: Error) => {
         toast.error(`Auto-bet falhou: ${err.message}`);
-        setAutoBetEnabled(false); // desativa se der erro (ex: saldo insuficiente)
+        setAutoBetEnabled(false);
       });
   }, [roundStatus, hasBet]);
 

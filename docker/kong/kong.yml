@@ -28,7 +28,7 @@ services:
       - name: games-routes
         paths:
           - /games
-        strip_path: false        # ← era true, corrigido
+        strip_path: false
 
   - name: wallets-service
     url: http://wallets:4002
@@ -36,7 +36,7 @@ services:
       - name: wallets-routes
         paths:
           - /wallets
-        strip_path: false        # ← era true, corrigido
+        strip_path: false        
 
   - name: games-websocket-service
     url: http://games:4001

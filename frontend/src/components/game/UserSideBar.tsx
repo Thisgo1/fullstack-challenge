@@ -32,7 +32,7 @@ export function UserSidebar() {
 
   if (!auth.isAuthenticated) return null;
 
-  // Cálculo simples de maior multiplicador da sessão
+
   const bestMultiplier = history.length > 0
     ? (Math.max(...history) / 100).toFixed(2)
     : "0.00";
@@ -67,7 +67,6 @@ export function UserSidebar() {
 
         <div className="text-center">
           <h2 className="font-bold text-zinc-100 tracking-tight">{auth.user?.profile.preferred_username}</h2>
-          {/* <p className="text-xs text-zinc-500 font-medium">Software Engineer</p> */}
         </div>
       </div>
 
@@ -112,7 +111,6 @@ export function UserSidebar() {
   );
 }
 
-// Subcomponente para os cards de stats
 function StatCard({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
   return (
     <div className="flex items-center gap-3 bg-zinc-900/30 p-3 rounded-xl border border-zinc-800/50 hover:border-zinc-700 transition-colors">

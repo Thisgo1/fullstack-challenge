@@ -17,10 +17,6 @@ export function getRouter() {
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
-    // POR QUE PASSAR O QUERYCLIENT PELO CONTEXTO DO ROUTER?
-    // O TanStack Router tem suporte nativo a contexto tipado.
-    // Isso permite usar o queryClient em loaders de rota —
-    // você pode pré-buscar dados antes da rota renderizar.
     context: { queryClient },
   });
 

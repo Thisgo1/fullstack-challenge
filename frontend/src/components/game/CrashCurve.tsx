@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useGameStore } from '@/store/game.store';
 
-const LERP_FACTOR = 0.08; // quão rápido a janela segue — menor = mais suave
+const LERP_FACTOR = 0.08;
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -11,7 +11,6 @@ export function CrashCurve() {
   const { multiplier, roundStatus } = useGameStore();
   const [points, setPoints] = useState<{ m: number; id: number }[]>([]);
 
-  // Janela interpolada — o que realmente é usado para renderizar
   const smoothVMin = useRef(100);
   const smoothVMax = useRef(250);
   const [smoothWindow, setSmoothWindow] = useState({ vMin: 100, vMax: 250 });
@@ -30,7 +29,6 @@ export function CrashCurve() {
     return (height - padding.bottom) - ratio * (height - padding.bottom - padding.top);
   };
 
-  // Calcula a janela TARGET baseada no multiplicador atual
   const getTargetWindow = (mult: number) => {
     const currentX  = mult / 100;
     const rawStep   = currentX * 0.5;
@@ -47,7 +45,6 @@ export function CrashCurve() {
     };
   };
 
-  // Acumula pontos
   useEffect(() => {
     if (roundStatus === 'BETTING' || roundStatus === null) {
       setPoints([{ m: 100, id: 0 }]);
@@ -61,7 +58,6 @@ export function CrashCurve() {
     }
   }, [multiplier, roundStatus]);
 
-  // Animação da janela — roda a cada frame e faz lerp em direção ao target
   useEffect(() => {
     if (roundStatus !== 'RUNNING') return;
 
@@ -89,7 +85,6 @@ export function CrashCurve() {
     const { vMin, vMax } = smoothWindow;
     const { majorStep }  = getTargetWindow(multiplier);
 
-    // Grid
     const minorStep  = majorStep / 5;
     const vMinX      = vMin / 100;
     const vMaxX      = vMax / 100;
@@ -109,7 +104,6 @@ export function CrashCurve() {
       });
     }
 
-    // Path bezier
     if (points.length < 2) {
       const x0 = getXSVG(0, 1);
       const y0 = getYSVG(points[0]?.m ?? 100, vMin, vMax);
