@@ -49,9 +49,6 @@ export class GamesController {
         status:     r.status,
         crashPoint: r.crashPoint,
         seedHash:   r.seedHash,
-        // POR QUE SÓ REVELAR A SEED APÓS O CRASH?
-        // Antes do crash, revelar a seed permitiria calcular o crashPoint
-        // e trapeacear. A seed só é revelada quando a rodada termina.
         seed:       r.status === 'CRASHED' ? r.seed : null,
         createdAt:  r.createdAt,
         crashedAt:  r.crashedAt,
@@ -124,7 +121,6 @@ export class GamesController {
         computedHash:   result.computedHash,
         crashPoint:     round.crashPoint,
         verifiedCrashPoint: result.crashPoint,
-        // Se crashPoint === verifiedCrashPoint, o resultado foi legítimo
         match: round.crashPoint === result.crashPoint,
       },
     };

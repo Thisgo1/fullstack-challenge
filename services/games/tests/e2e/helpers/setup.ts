@@ -1,4 +1,3 @@
-// URL base dos serviços — usa as portas diretas, não o Kong
 export const GAMES_URL   = process.env.GAMES_URL   ?? 'http://localhost:4001';
 export const WALLETS_URL = process.env.WALLETS_URL ?? 'http://localhost:4002';
 
@@ -31,7 +30,6 @@ export function authHeaders() {
   };
 }
 
-// Versão ROBUSTA: Aguarda até a rodada estar em uma fase específica
 export async function waitForRoundPhase(
   phase: 'BETTING' | 'RUNNING' | 'CRASHED',
   timeoutMs = 30_000
@@ -42,7 +40,6 @@ export async function waitForRoundPhase(
     try {
       const res = await fetch(`${GAMES_URL}/games/rounds/current`);
 
-      // Se o status for 404 e estivermos esperando CRASHED, pode ser que a rodada tenha sido arquivada
       if (res.status === 404 && phase === 'CRASHED') {
          const histRes = await fetch(`${GAMES_URL}/games/rounds/history?page=1&limit=1`);
          const histBody = await histRes.json();
@@ -55,7 +52,6 @@ export async function waitForRoundPhase(
 
         if (round?.status === phase) return round;
 
-        // Fallback para quando a rodada muda muito rápido
         if (phase === 'CRASHED') {
           const histRes = await fetch(`${GAMES_URL}/games/rounds/history?page=1&limit=1`);
           const histBody = await histRes.json();
@@ -64,7 +60,7 @@ export async function waitForRoundPhase(
         }
       }
     } catch (e) {
-      // Ignora erros de conexão temporários
+
     }
 
     await new Promise(r => setTimeout(r, 500));

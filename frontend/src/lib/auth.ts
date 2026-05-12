@@ -10,10 +10,6 @@ export const oidcConfig = {
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
   automaticSilentRenew: true,
 
-  // POR QUE onSigninCallback?
-  // Após processar o ?code=, limpa os parâmetros da URL.
-  // Sem isso a URL fica como /callback?code=xxx&state=yyy
-  // o que é feio e pode causar problemas se o usuário recarregar a página.
   onSigninCallback: () => {
     window.history.replaceState({}, document.title, '/callback');
   },

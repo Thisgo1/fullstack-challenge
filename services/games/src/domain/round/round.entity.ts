@@ -1,17 +1,14 @@
 import { RoundStatus } from './round-status.enum';
 import { Bet } from '../bet/bet.entity';
 
-/**
- * Representa uma rodada do jogo Crash.
- * Gerencia o ciclo de vida da rodada, apostas, início, cashouts e crash.
- */
+
 export class Round {
   private constructor(
     public readonly id: string,
     private _status: RoundStatus,
-    public readonly crashPoint: number,  // ex: 250 = 2.50x
-    public readonly seedHash: string,    // revelado antes da rodada
-    private _seed: string | null,        // revelado após o crash
+    public readonly crashPoint: number,  x
+    public readonly seedHash: string,
+    private _seed: string | null,
     private _bets: Bet[],
     public readonly createdAt: Date,
     private _startedAt: Date | null,
@@ -105,7 +102,6 @@ export class Round {
     if (!this.isRunning) throw new Error('Rodada não está em andamento');
     this._status = RoundStatus.CRASHED;
     this._crashedAt = new Date();
-    // Todas as apostas ainda PENDING são perdidas
     const lost: Bet[] = [];
     for (const bet of this._bets) {
       if (bet.isPending) {
@@ -113,6 +109,6 @@ export class Round {
         lost.push(bet);
       }
     }
-    return lost; // retorna as apostas perdidas para publicar eventos
+    return lost;
   }
 }

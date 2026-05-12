@@ -7,7 +7,7 @@ import '../styles.css';
 
 interface RouterContext {
   queryClient: QueryClient;
-  auth: AuthContextProps;      // ← adiciona aqui
+  auth: AuthContextProps;    
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

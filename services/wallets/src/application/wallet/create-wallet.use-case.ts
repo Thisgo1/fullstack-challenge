@@ -11,7 +11,7 @@ export interface CreateWalletInput {
 export interface CreateWalletOutput {
   id: string;
   playerId: string;
-  balance: string; // string pois bigint não serializa em json
+  balance: string;
 }
 
 @Injectable()
@@ -22,7 +22,6 @@ export class CreateWalletUseCase {
   ) {}
 
   async execute(input: CreateWalletInput): Promise<CreateWalletOutput> {
-    // Verificar se o jogador já possui uma carteira
     const existing = await this.walletRepository.findByPlayerId(input.playerId);
     if (existing) {
       throw new ConflictException("Jogador já possui uma carteira");

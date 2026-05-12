@@ -14,7 +14,7 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly creditWallet: CreditWalletUseCase,
-    private readonly debitWallet: DebitWalletUseCase,   // ← adicionar
+    private readonly debitWallet: DebitWalletUseCase,
   ) {}
 
   async onModuleInit() {
@@ -26,8 +26,8 @@ export class RabbitMQConsumer implements OnModuleInit, OnModuleDestroy {
       setup: async (channel: ConfirmChannel) => {
         await channel.assertExchange(EXCHANGE, 'topic', { durable: true });
         await channel.assertQueue(QUEUE, { durable: true });
-        await channel.bindQueue(QUEUE, EXCHANGE, 'bet.placed');  // ← só uma vez
-        await channel.bindQueue(QUEUE, EXCHANGE, 'bet.won');     // ← só uma vez
+        await channel.bindQueue(QUEUE, EXCHANGE, 'bet.placed');
+        await channel.bindQueue(QUEUE, EXCHANGE, 'bet.won');     
         await channel.prefetch(1);
 
         await channel.consume(QUEUE, async (msg) => {

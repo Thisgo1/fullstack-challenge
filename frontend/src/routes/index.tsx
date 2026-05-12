@@ -12,8 +12,7 @@ import { RoundBets } from '#/components/game/RoundBets';
 
 export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
-  if (context.auth.isLoading) return; // aguarda carregar
-  if (!context.auth.user) {
+  if (context.auth.isLoading) return;
     throw redirect({ to: '/login' });
   }
 },

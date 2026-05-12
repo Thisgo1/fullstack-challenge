@@ -27,6 +27,5 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist"
-    // Outras configs específicas do NestJS/Games se necessário
   }
 }
