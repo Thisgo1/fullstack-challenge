@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { WalletsController } from './presentation/controllers/wallets.controller';
+import { WalletsController } from './presentation/http/wallets.controller';
 import { WALLET_REPOSITORY } from './domain/wallet/wallet.repository';
 import { PrismaWalletRepository } from './infrastructure/database/prisma-wallet.repository';
 import { RabbitMQConsumer }  from './infrastructure/messaging/rabbitmq-consumer';
@@ -20,7 +20,7 @@ import { DebitWalletUseCase }  from './application/wallet/debit-wallet.use-case'
     GetWalletUseCase,
     CreditWalletUseCase,
     DebitWalletUseCase,
-    RabbitMQConsumer, // inicia o consumer automaticamente via OnModuleInit
+    RabbitMQConsumer,
   ],
 })
 export class AppModule {}

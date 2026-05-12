@@ -27,9 +27,7 @@ async function bootstrap() {
       transform: true,       // converte tipos automaticamente
     }),
   );
-
-  app.setGlobalPrefix('wallets'); // todas as rotas ficam em /wallets/...
-
-  await app.listen(3002);
+  
+  await app.listen(process.env.PORT ?? 4002);
 }
 bootstrap();

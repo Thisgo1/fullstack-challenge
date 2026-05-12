@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@crash/test-commons": ["./packages/test-commons/index.ts"]
+    }
+  },
+  "exclude": ["node_modules"]
+}

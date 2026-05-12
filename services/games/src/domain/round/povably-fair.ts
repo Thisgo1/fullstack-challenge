@@ -27,7 +27,7 @@ export class ProvablyFair {
     const floatResult = 99 / (1 - Number(e) / Number(divisor));
 
     // SEM o * 100 — floatResult já está na escala correta
-    return Math.max(100, Math.floor(floatResult));
+    return Math.max(100, Math.round(floatResult));
   }
 
   static nextSeed(currentSeed: string): string {

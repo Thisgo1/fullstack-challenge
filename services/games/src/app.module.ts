@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { GamesController } from './presentation/controllers/games.controller';
+import { GamesController } from './presentation/http/games.controller';
 import { ROUND_REPOSITORY } from './domain/round/round.repository';
 import { BET_REPOSITORY }   from './domain/bet/bet.repository';
 import { EVENT_PUBLISHER }  from './domain/events/event-publisher';
@@ -11,10 +11,13 @@ import { PrismaRoundRepository } from './infrastructure/database/prisma-round.re
 import { PrismaBetRepository }   from './infrastructure/database/prisma-bet.repository';
 import { RabbitMQEventPublisher } from './infrastructure/messaging/rabbitmq-event-publisher';
 import { GameLoopService } from './application/round/game-loop.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { GameGateway } from './presentation/ws/game.gateway';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    EventEmitterModule.forRoot(),
   ],
   controllers: [GamesController],
   providers: [
@@ -29,6 +32,7 @@ import { GameLoopService } from './application/round/game-loop.service';
     PlaceBetUseCase,
     CashoutUseCase,
     GameLoopService,
+    GameGateway
   ],
 })
 export class AppModule {}
