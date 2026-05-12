@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Param, Query, Request, HttpCode, HttpStatus} from '@nestjs/common';
+import {Controller, Get, Post, Body, Param, Query, Request, HttpCode, HttpStatus, UseGuards} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateRoundUseCase } from '../../application/round/create-round.use-case';
 import { PlaceBetUseCase }    from '../../application/bet/place-bet.use-case';
@@ -16,9 +16,9 @@ import { ProvablyFair } from '@/domain/round/povably-fair';
 import { SERVER_SECRET } from '../../application/round/create-round.use-case';
 import { Inject } from '@nestjs/common';
 import { HealthCheckResponseDto } from "../dtos/health-check-response.dto";
+import { JwtGuard } from '@/infrastructure/auth/jwt.guard';
 
-@ApiTags('games')
-@Controller()
+@Controller('games')
 
 export class GamesController {
   constructor(
@@ -40,7 +40,7 @@ export class GamesController {
     return { status: "ok", service: "games" };
   }
 
-  @Get('rounds')
+  @Get('rounds/history')
   async listRounds(@Query() pagination: PaginationDto) {
   const { rounds, total } = await this.roundRepository.findMany(pagination.page, pagination.limit);
    return {
@@ -64,7 +64,7 @@ export class GamesController {
     };
   }
 
-  @Get('rounds/active')
+  @Get('rounds/current')
   async getActiveRound() {
     const round = await this.roundRepository.findActive();
     if (!round) return { data: null };
@@ -130,17 +130,21 @@ export class GamesController {
     };
   }
 
-  @Post('bets')
+  @UseGuards(JwtGuard)
+  @Post('bet')
   @HttpCode(HttpStatus.CREATED)
   async bet(@Body() dto: PlaceBetDto, @Request() req: any) {
     const playerId = req.user?.sub ?? req.headers['x-player-id'];
     return this.placeBet.execute({
       playerId,
-      amount: BigInt(dto.amount)
+      amount: BigInt(dto.amount),
+      autoCashoutAt: dto.autoCashoutAt,
     });
   }
 
-  @Post('bets/cashout')
+  @UseGuards(JwtGuard)
+  @Post('bet/cashout')
+  @HttpCode(HttpStatus.OK)
   async doCashout(@Body() dto: CashoutDto, @Request() req: any) {
     const playerId = req.user?.sub ?? req.headers['x-player-id'];
     return this.cashout.execute({
@@ -149,6 +153,7 @@ export class GamesController {
     })
   }
 
+  @UseGuards(JwtGuard)
   @Get('bets/me')
   async myBets(@Query() pagination: PaginationDto, @Request() req: any){
     const playerId = req.user?.sub ?? req.headers['x-player-id'];
