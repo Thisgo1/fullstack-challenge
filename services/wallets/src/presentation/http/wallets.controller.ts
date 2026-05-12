@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Body, Request, HttpCode, HttpStatus } from "@nestjs/common";
+import { Controller, Get, Post, Body, Request, HttpCode, HttpStatus, UseGuards } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateWalletDto } from "../dtos/create-wallet.dto";
 import { CreateWalletUseCase } from "@/application/wallet/create-wallet.use-case";
 import { GetWalletUseCase } from "@/application/wallet/get-wallet.use-case";
 import { HealthCheckResponseDto } from "../dtos/health-check-response.dto";
+import { JwtGuard } from "@/infrastructure/auth/jwt.guard";
 
-@ApiTags('wallets')
-@Controller()
+@Controller('wallets')
 export class WalletsController {
 
   constructor(
@@ -27,6 +27,7 @@ export class WalletsController {
     return this.createWallet.execute({playerId: dto.playerId});
   }
 
+  @UseGuards(JwtGuard)
   @Get("me")
   async getMe(@Request() req: any) {
     const playerId = req.user?.sub ?? req.headers['x-player-id'];
