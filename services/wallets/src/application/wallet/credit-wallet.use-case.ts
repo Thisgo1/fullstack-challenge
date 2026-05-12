@@ -20,7 +20,6 @@ export class CreditWalletUseCase {
       throw new NotFoundException("Carteira não encontrada");
     }
 
-    // A regra de negocio (amount > 0) esta na entidade e não aqui, pois a entidade é a responsável por garantir a integridade do seu estado
     wallet.credit(input.amount);
     await this.walletRepository.save(wallet);
   }

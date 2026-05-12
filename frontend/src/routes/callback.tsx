@@ -11,13 +11,10 @@ function CallbackPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // O AuthProvider processa o ?code= automaticamente.
-    // Quando não está mais carregando e está autenticado, redireciona.
     if (!auth.isLoading && auth.isAuthenticated) {
       navigate({ to: '/' });
     }
 
-    // Se não está carregando e não está autenticado, algo deu errado
     if (!auth.isLoading && !auth.isAuthenticated && !auth.error) {
       navigate({ to: '/login' });
     }

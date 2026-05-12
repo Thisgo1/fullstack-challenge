@@ -9,12 +9,12 @@ export class Bet {
     public readonly id: string,
     public readonly roundId: string,
     public readonly playerId: string,
-    public readonly amount: bigint,       // em centavos
+    public readonly amount: bigint,
     private _status: BetStatus,
-    private _cashoutMultiplier: number | null, // ex: 250 = 2.50x
+    private _cashoutMultiplier: number | null,
     private _payout: bigint | null,
     public readonly createdAt: Date,
-    public readonly autoCashoutAt: number | null, // ← adicionar
+    public readonly autoCashoutAt: number | null,
   ) {}
 
   /**
@@ -50,7 +50,7 @@ export class Bet {
 static restore(
   id: string, roundId: string, playerId: string, amount: bigint,
   status: BetStatus, cashoutMultiplier: number | null, payout: bigint | null,
-  createdAt: Date, autoCashoutAt: number | null, // ← adicionar
+  createdAt: Date, autoCashoutAt: number | null,
 ): Bet {
   return new Bet(id, roundId, playerId, amount, status, cashoutMultiplier, payout, createdAt, autoCashoutAt);
 }
@@ -68,7 +68,6 @@ static restore(
   cashout(multiplier: number): void {
     if (!this.isPending) throw new Error('Aposta já foi encerrada');
     if (multiplier < 100) throw new Error('Multiplicador inválido');
-    // payout = amount * multiplier / 100  (tudo em inteiros)
     this._payout = (this.amount * BigInt(multiplier)) / 100n;
     this._cashoutMultiplier = multiplier;
     this._status = BetStatus.WON;

@@ -49,10 +49,6 @@ export class PlaceBetUseCase {
 
     await this.betRepository.save(bet);
 
-    // POR QUE PUBLICAR bet.placed?
-    // O Wallets Service precisa debitar o saldo do jogador.
-    // Fazemos isso via evento para manter os serviços desacoplados.
-    // Se o débito falhar, o evento fica na fila para retry.
     const event: BetPlacedEvent = {
       betId:    bet.id,
       playerId: bet.playerId,

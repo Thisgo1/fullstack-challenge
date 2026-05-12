@@ -4,9 +4,6 @@ import { api } from '../../lib/api';
 import { useGameStore } from '../../store/game.store';
 import {
   ButtonGroup,
-  ButtonGroupSeparator,
-  ButtonGroupText,
-  buttonGroupVariants,
 } from '../ui/button-group';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
@@ -34,9 +31,9 @@ export function BetControls() {
     mutationFn: () => api.placeBet(parseInt(amount)),
     onSuccess: (data: any) => {
       onBetPlaced(amount);
-      toast.success(`Aposta feita! R$ ${(parseInt(amount) / 100).toFixed(2)}`); // ← usa amount, não data.payout
+      toast.success(`Aposta feita! R$ ${(parseInt(amount) / 100).toFixed(2)}`);
       onRoundBetUpdate({
-        playerId: data.playerId, // ← vem da resposta da API
+        playerId: data.playerId,
         amount:   parseInt(amount),
         status:   'PENDING',
       });
@@ -59,7 +56,6 @@ export function BetControls() {
     },
   });
 
-  // 1. Lida com o que o usuário digita (Ex: usuário digita "1.50")
   const handleInputChange = (displayValue: string) => {
   const sanitized = displayValue.replace(',', '.').replace(/[^\d.]/g, '');
   if (!sanitized) {
@@ -68,12 +64,10 @@ export function BetControls() {
   }
   const cents = Math.round(parseFloat(sanitized) * 100);
   if (!isNaN(cents)) {
-    setAmount(Math.max(MIN_CENTS, cents).toString()); // ← clamp aqui
-  }
+    setAmount(Math.max(MIN_CENTS, cents).toString());
 };
 
 
-  // 2. Lida com os botões de ADICIONAR (1, 5, 10 Reais)
   const addAmount = (reais: number) => {
     setAmount((prev) => {
       const currentCents = parseInt(prev || '0');
@@ -86,7 +80,7 @@ export function BetControls() {
   setAmount((prev) => {
     const currentCents = parseInt(prev || '0');
     const subCents = reais * 100;
-    return Math.max(MIN_CENTS, currentCents - subCents).toString(); // ← clamp aqui
+    return Math.max(MIN_CENTS, currentCents - subCents).toString();
   });
 };
 
@@ -110,8 +104,8 @@ export function BetControls() {
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">R$</span>
             <input
-              type="text" // Usamos text para melhor controle de formatação
-              value={(parseInt(amount) / 100).toFixed(2)} // Mostra 1.00
+              type="text"
+              value={(parseInt(amount) / 100).toFixed(2)}
               onChange={(e) => handleInputChange(e.target.value)}
               disabled={!canBet}
               className="w-full bg-zinc-800 text-white rounded-lg pl-10 pr-2 py-1 text-lg font-mono
@@ -130,8 +124,6 @@ export function BetControls() {
       </Button>
 
     </div>
-
-      {/* Botões de Atalho para ADICIONAR */}
       <div className="grid grid-cols-3 gap-2">
         <ButtonGroup>
           <Button
@@ -160,8 +152,6 @@ export function BetControls() {
           </Button>
         </ButtonGroup>
       </div>
-
-        {/* Botão de Ação Principal (Apostar/Sacar) */}
 
     </div>
             <div className="w-full h-full">

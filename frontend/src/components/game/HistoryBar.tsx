@@ -17,8 +17,7 @@ export function HistoryBar() {
         {history.map((val, i) => {
           const multiplier = val / 100;
 
-          // Definindo a "personalidade" da cor
-          // Vermelho: < 1.2x | Branco: 1.2x a 2.0x | Verde: > 2.0x | Roxo/Dourado: > 10.0x
+  
           const getColorClass = () => {
             if (multiplier < 1.2) return "text-red-500 bg-red-500/10 border-red-500/20";
             if (multiplier >= 10) return "text-yellow-400 bg-yellow-400/10 border-yellow-400/20 shadow-[0_0_10px_rgba(250,204,21,0.2)]";

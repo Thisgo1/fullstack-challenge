@@ -3,11 +3,6 @@ import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
 import { useGameStore } from '../store/game.store';
 
-// POR QUE WINDOW.LOCATION.ORIGIN?
-// Em desenvolvimento aponta para localhost:3000 (Vite).
-// Em produção aponta para o nginx que faz proxy para o games service.
-// Dessa forma o mesmo código funciona nos dois ambientes.
-// Point this to the Kong Gateway port, not the React port
 const WS_URL = import.meta.env.VITE_WS_URL ?? 'http://localhost:8000';
 
 export function useGameSocket() {

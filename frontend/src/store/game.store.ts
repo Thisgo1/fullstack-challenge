@@ -26,12 +26,12 @@ interface GameState {
   roundBets:         RoundBet[];
 
   onTick:            (data: MultiplierTick) => void;
-  onBetting:         (roundId: string, seedHash: string) => void; // ← assinatura corrigida
+  onBetting:         (roundId: string, seedHash: string) => void;
   onStarted:         (roundId: string) => void;
   onCrashed:         (data: RoundCrashedEvent) => void;
   onBetPlaced:       (amount: string) => void;
   onCashedOut:       (payout: string) => void;
-  onRoundBetUpdate:  (bet: RoundBet) => void;                     // ← adicionado
+  onRoundBetUpdate:  (bet: RoundBet) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -92,7 +92,7 @@ export const useGameStore = create<GameState>((set) => ({
       history:          [data.crashPoint, ...state.history].slice(0, 15),
       totalRounds:      state.totalRounds + 1,
       lastResult:       result,
-      roundBets:        state.roundBets.map(b =>   // ← movido para dentro do return
+      roundBets:        state.roundBets.map(b =>   
         b.status === 'PENDING' ? { ...b, status: 'LOST' as const } : b
       ),
     };

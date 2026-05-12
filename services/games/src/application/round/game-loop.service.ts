@@ -11,16 +11,16 @@ import type { BetLostEvent } from "@/domain/events/bet-events";
 import { CreateRoundUseCase } from "./create-round.use-case";
 import { CashoutUseCase } from "../bet/cashout.use-case";
 
-const BETTING_PHASE_MS = 10_000; //10 segundos para apostar
-const CRASH_INTERVAL_MS = 100; // tick a cada 100ms
-const BETWEEN_ROUNDS_MS = 5_000; //5s entre rodadas
+const BETTING_PHASE_MS = 10_000;
+const CRASH_INTERVAL_MS = 100;
+const BETWEEN_ROUNDS_MS = 5_000;
 
 
 @Injectable()
 export class GameLoopService implements OnModuleInit {
   private readonly logger = new Logger(GameLoopService.name);
 
-  public currentMultiplier = 100; // multiplicador atual, começa em 1.00x (100 em centavos)
+  public currentMultiplier = 100;
   public currentRoundId: string | null = null;
 
   constructor(
@@ -71,7 +71,6 @@ private async runRound(): Promise<void> {
   round.start();
   await this.roundRepository.save(round);
 
-  // ✅ ADICIONADO: recarrega do banco para pegar as bets feitas durante o BETTING
   const runningRound = await this.roundRepository.findById(round.id);
   if (!runningRound) throw new Error(`Round ${round.id} não encontrado após BETTING`);
 
@@ -90,7 +89,6 @@ private async runRound(): Promise<void> {
         100 * Math.pow(Math.E, elapsed / 6000)
       );
 
-      // ✅ ALTERADO: usa runningRound em vez de round
       const pendingBets = runningRound.bets.filter(
         bet => bet.isPending &&
                bet.autoCashoutAt !== null &&
@@ -119,7 +117,6 @@ private async runRound(): Promise<void> {
 
   // ── Fase 3: CRASHED ───────────────────────────────────────────────
 
-  // ✅ ALTERADO: usa runningRound (já tem as bets) em vez de round
   const lostBets = runningRound.crash();
   await this.roundRepository.save(runningRound);
 

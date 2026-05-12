@@ -1,7 +1,6 @@
 import type { User } from 'oidc-client-ts';
 import type { Wallet, Bet, Round } from '../types';
 
-// Kong acts as the single entry point for all services
 const KONG_URL = 'http://localhost:8000';
 
 function getToken(): string | null {
@@ -15,7 +14,6 @@ function getToken(): string | null {
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const token = getToken();
 
-  // We always hit Kong. Path starts with /wallets or /games
   const res = await fetch(`${KONG_URL}${path}`, {
     ...options,
     headers: {
@@ -34,14 +32,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // --- Wallets Service (via Kong /wallets path) ---
   getWallet: () =>
     request<Wallet>('/wallets/me'),
 
   createWallet: (playerId: string) =>
     request('/wallets', { method: 'POST', body: JSON.stringify({ playerId }) }),
-
-  // --- Games Service (via Kong /games path) ---
   getActiveRound: () =>
     request<{ data: Round | null }>('/games/rounds/current'),
 

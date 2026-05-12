@@ -55,14 +55,14 @@ export class PrismaBetRepository implements IBetRepository {
       playerId: bet.playerId,
       amount: bet.amount,
       status: bet.status,
-      cashoutMultiplier: bet.cashoutMultiplier,  // ← era cashoutAt
+      cashoutMultiplier: bet.cashoutMultiplier,
       payout: bet.payout,
       createdAt: bet.createdAt,
       autoCashoutAt: bet.autoCashoutAt,
     },
     update: {
       status: bet.status,
-      cashoutMultiplier: bet.cashoutMultiplier,  // ← era cashoutAt
+      cashoutMultiplier: bet.cashoutMultiplier,
       payout: bet.payout,
     }
   });
@@ -88,7 +88,7 @@ export class PrismaBetRepository implements IBetRepository {
     record.playerId,
     record.amount,
     record.status as BetStatus,
-    record.cashoutMultiplier,  // ← era cashoutAt
+    record.cashoutMultiplier,  
     record.payout,
     record.createdAt,
     record.autoCashoutAt,
