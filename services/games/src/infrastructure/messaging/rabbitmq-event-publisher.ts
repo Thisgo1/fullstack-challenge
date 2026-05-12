@@ -10,7 +10,7 @@ export class RabbitMQEventPublisher implements IEventPublisher, OnModuleInit, On
   private channelWrapper: ChannelWrapper;
 
   async onModuleInit() {
-    const connection = amqp.connect([process.env.RABBIT_URL ?? 'amqp://admin:admin@localhost:5672']);
+    const connection = amqp.connect([process.env.RABBITMQ_URL ?? 'amqp://admin:admin@localhost:5672']);
 
     this.channelWrapper = connection.createChannel({
       setup: async (channel: any) => {
